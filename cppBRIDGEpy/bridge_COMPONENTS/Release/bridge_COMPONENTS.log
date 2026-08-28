@@ -1,0 +1,15 @@
+﻿  bushing_Bridge.cpp
+  changer_Bridge.cpp
+  coil_Bridge.cpp
+  conductor_Bridge.cpp
+  core__Bridge.cpp
+  discs_Bridge.cpp
+  mechanical_Bridge.cpp
+  winding_Bridge.cpp
+  midConnector_COMPONENTS.cpp
+     Creating library ..\bin\Release\bridge_COMPONENTS.lib and object ..\bin\Release\bridge_COMPONENTS.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 16072 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  bridge_COMPONENTS.vcxproj -> C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\cppBRIDGEpy\bin\Release\bridge_COMPONENTS.pyd

@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\gradient.obj",
+            "outputs": [
+                "Release\\gradient.cpp.obj.dt.module.json",
+                "Release\\gradient.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

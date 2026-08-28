@@ -1,0 +1,1013 @@
+#gui_helpers.py
+import re
+import tkinter as tk
+from tkinter import ttk, messagebox
+from Definitions.enums import eLogical,eWarnings
+from Definitions.functions import ROUNDECIM
+from enum import Enum
+# --------------------------
+# Functions to control
+# --------------------------
+import tkinter as tk
+from tkinter import ttk
+import re
+
+import tkinter as tk
+from tkinter import ttk
+from enum import Enum
+import re
+
+import tkinter as tk
+from tkinter import ttk
+import re
+from enum import Enum
+from functools import partial
+
+import tkinter as tk
+from tkinter import ttk
+import re
+from enum import Enum
+from functools import partial
+
+def create_combobox_focus(parent, row, column, label_text, options, field_name, parent_obj,
+                          width=30, padx=5, pady=5, sticky="e",
+                          validate_func=None, combos=None, on_select_func=None, toggle_widgets=None, bOutput = False, warning_func=None):
+    """
+    Creates a Label + Combobox in a Tkinter grid.
+    Supports Enum, int, float, string, and arrays of these types.
+    Each combobox respects its index if the field is an array (field[0], field[1], ...).
+    """
+    # Detect indexed field like "field[0]"
+    match = re.match(r"(\w+)\[(\d+)\]", field_name)
+    if match:
+        base_name, idx = match.groups()
+        idx = int(idx)
+        if base_name not in parent_obj.fields:
+            raise AttributeError(f"Field '{base_name}' does not exist")
+        field = parent_obj.fields[base_name]
+        current_val = field.current[idx]
+        if warning_func is not None:
+            parent_obj.fields[base_name].warning_func = warning_func
+    else:
+        idx = None
+        if field_name not in parent_obj.fields:
+            raise AttributeError(f"Field '{field_name}' does not exist")
+        field = parent_obj.fields[field_name]
+        current_val = field.current
+        if warning_func is not None:
+            parent_obj.fields[field_name].warning_func = warning_func
+
+    # Build display options and mapping
+    display_options = []
+    display_to_option = {}
+    for o in options:
+        display = o.value if isinstance(o, Enum) else str(o)
+        # avoid duplicates
+        if display in display_to_option:
+            i = 1
+            new_display = f"{display} ({i})"
+            while new_display in display_to_option:
+                i += 1
+                new_display = f"{display} ({i})"
+            display = new_display
+        display_options.append(display)
+        display_to_option[display] = o
+
+    # Helper to match option with current_val
+    def option_matches(o, cur):
+        if o is cur:
+            return True
+        if isinstance(cur, Enum) and isinstance(o, str):
+            return cur.value == o
+        if isinstance(cur, Enum) and isinstance(o, Enum):
+            return cur.value == o.value
+        if hasattr(o, "name") and hasattr(cur, "name") and o.name == cur.name:
+            return True
+        if hasattr(o, "value") and hasattr(cur, "value") and o.value == cur.value:
+            return True
+        try:
+            return str(o) == str(cur)
+        except:
+            return False
+
+    # Determine initial display
+    initial_display = None
+    for o, disp in zip(options, display_options):
+        if option_matches(o, current_val):
+            initial_display = disp
+            break
+    if initial_display is None:
+        cur_str = current_val.value if isinstance(current_val, Enum) else str(current_val)
+        if cur_str in display_to_option:
+            initial_display = cur_str
+    if initial_display is None:
+        initial_display = display_options[0] if display_options else str(current_val)
+
+    # Create label
+    if label_text != "":
+        label = tk.Label(parent, text=label_text)
+        label.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+
+        if "(*)" in label_text:
+            ToolTip(label, "Required field for optimization")
+    else:
+        column -= 1
+
+    # StringVar for combobox
+    var = tk.StringVar(value=initial_display)
+    if idx is None:
+        field.var = var
+    else:
+        field.var[idx] = var
+
+    # Create combobox
+
+    combobox = ttk.Combobox(parent, values=display_options, textvariable=var,
+            width=width, state="readonly")#,style=styleE)
+
+    combobox.grid(row=row, column=column+1, padx=padx, pady=pady, sticky=sticky)
+    combobox.combo_name = field_name
+    combobox.var = var
+    
+    if hasattr(field, "warning_func") and field.warning_func is not None: 
+        apply_warning_color(combobox, field.warning_func, idx, bOutput)
+
+    # Map display string back to option
+    def find_option_from_display(disp):
+        return display_to_option.get(disp, disp)
+
+    def get_enum_member(enum_class: Enum, text: str):
+        """
+        Convierte un string tipo 'member' o 'EnumClass.member' en el objeto Enum.
+        Solo usa la clase Enum que pasas.
+        """
+        # Si el string viene con el formato "eLiquid.eOil", tomamos solo la parte del miembro
+        member_name = text.split('.')[-1]
+    
+        try:
+            return getattr(enum_class, member_name)
+        except AttributeError:
+            try:   
+                for member in enum_class:
+                    if member.value == member_name:
+                        return member 
+            except AttributeError:
+                return None  # O devuelve el string original si prefieres
+
+
+    # --- Update backend when var changes ---
+    def update_fieldvalue(*args, idx_local=idx, field_local=field):
+        disp = var.get()
+        new_value = find_option_from_display(disp)
+
+        enum_type = None
+        expected_type = str  # valor por defecto seguro
+
+        # Detect expected type
+        if isinstance(field_local.default, list) and len(field_local.default) > 0:
+            first_item = field_local.default[0]
+            if isinstance(first_item, Enum):
+                enum_type = type(first_item)
+            expected_type = type(first_item)
+        elif isinstance(field_local.default, Enum):
+            enum_type = type(field_local.default)
+            expected_type = type(field_local.default)
+            if isinstance(new_value, str):
+                new_value = get_enum_member(enum_type,new_value)
+        else:
+            expected_type = type(field_local.default)
+
+        # Convert according to type
+        if enum_type is not None and isinstance(new_value, str):
+            try:
+                # Normalizar mayúsculas/minúsculas y espacios
+                name_upper = new_value.upper().replace(" ", "_")
+                if name_upper in enum_type.__members__:
+                    new_value = enum_type[name_upper]
+                else:
+                    new_value = enum_type(new_value)
+            except Exception:
+                pass
+        elif expected_type in (int, float) and isinstance(new_value, str):
+            try:
+                new_value = int(float(new_value)) if expected_type is int else float(new_value)
+            except Exception:
+                pass
+
+        # Assign to backend
+        if idx_local is not None:
+            values = list(field_local.current)
+            if 0 <= idx_local < len(values):
+                values[idx_local] = new_value
+                field_local.setField(values, index=None)
+            else:
+                field_local.setField(new_value)
+        else:
+            field_local.setField(new_value)
+
+        # Call external callback
+        if on_select_func:
+            try:
+                on_select_func(field_local, disp, parent_obj, combos)
+            except TypeError:
+                on_select_func(None, disp, parent_obj, combos)
+
+        if hasattr(field_local, "warning_func"): 
+            apply_warning_color(combobox, field_local.warning_func, idx_local, bOutput, False)
+
+        def on_toggle():
+            enum_val = eLogical.TRUE if var.get() else eLogical.FALSE
+            field.set(enum_val)
+
+            # Sync BooleanVar with current FieldValue (optional, for safety)
+            var.set(True if field.get() == eLogical.TRUE else False)
+
+            # Update other widgets if needed
+            if toggle_widgets is not None:
+                toggle_controls(var.get(), toggle_widgets)
+
+        if hasattr(field_local, "warning_func"):
+            apply_warning_color(combobox, field_local.warning_func, idx_local)
+    # --- Trace with correct idx_local captured ---
+    var.trace_add("write", partial(update_fieldvalue))
+
+    # On user selection
+    def on_select(event):
+        update_fieldvalue()
+    combobox.bind("<<ComboboxSelected>>", on_select)
+
+    # Refresh UI from backend
+    def refresh_var():
+        val = field.current[idx] if idx is not None else field.current
+        desired_display = val.value if hasattr(val, "name") else str(val)
+        if desired_display not in display_to_option:
+            for o, disp in zip(options, display_options):
+                if option_matches(o, val):
+                    desired_display = disp
+                    break
+        if var.get() != desired_display:
+            var.set(desired_display)
+
+    if not hasattr(field, "_refresh_callbacks"):
+        field._refresh_callbacks = []
+    field._refresh_callbacks.append(refresh_var)
+
+    if idx is None:
+        get_default_func = lambda: field.getdefault()
+    else:
+        get_default_func = lambda: field.getdefault()[idx]
+
+    add_dynamic_restore(
+        combobox,
+        parent_obj,
+        field,
+        get_default_func=get_default_func
+    )
+
+    return combobox
+
+
+def create_label(parent, row, column, text="", field_name=None, parent_obj=None,
+                 font_name="Arial", font_size=10, bold=False, width=None,
+                 sticky="e", padx=5, pady=5, columnspan=None):
+    """
+    Crea un Label en un grid de Tkinter.
+    Si se da field_name y parent_obj, obtiene el valor de parent_obj.fields[field_name]
+    y maneja:
+        - tk.Variable (StringVar, IntVar, etc.)
+        - Enum (usando StringVar para mostrar .value)
+        - str (usando StringVar para permitir actualizaciones)
+    """
+
+    style = "bold" if bold else "normal"
+    label_font = (font_name, font_size, style)
+
+    # Determinar el valor inicial
+    var = None
+    value = None
+
+    if field_name and parent_obj:
+        # Detectar si es un campo indexado
+        match = re.match(r"(\w+)\[(\d+)\]", field_name)
+        if match:
+            base_name, idx = match.groups()
+            idx = int(idx)
+            if base_name not in parent_obj.fields:
+                raise AttributeError(f"Field '{base_name}' no existe")
+            field = parent_obj.fields[base_name]
+            current_val = field.current[idx]
+        else:
+            idx = None
+            if field_name not in parent_obj.fields:
+                raise AttributeError(f"Field '{field_name}' no existe")
+            field = parent_obj.fields[field_name]
+            current_val = field.current
+
+        # Determinar la variable según el tipo
+        if isinstance(current_val, (tk.StringVar, tk.IntVar, tk.DoubleVar, tk.BooleanVar)):
+            var = current_val
+        elif isinstance(current_val, Enum):
+            var = tk.StringVar(value=str(current_val.value))
+        else:
+            var = current_val
+
+    elif text != "":
+        # Si solo se pasa texto
+        var = tk.StringVar(value=text)
+
+    # Crear Label
+    if var is not None:
+        label = tk.Label(parent, textvariable=var, font=label_font)
+        label.var = var  # guardamos la variable para conveniencia y futuras actualizaciones
+    else:
+        label = tk.Label(parent, text=text, font=label_font)
+
+    if width is not None:
+        label.config(width=width)
+
+    label.grid(row=row, column=column, sticky=sticky, padx=padx, pady=pady, columnspan=columnspan)
+    if columnspan!=None:
+        label.configure(anchor="center", justify="center")
+
+
+    return label
+
+def create_entry_focus(parent, row, column, label_text, field_name, parent_obj,
+                       width=30, padx=5, pady=5, sticky="e", bOutput=False, bInfo=False,
+                       validate_func=None, entries=None, on_change_func=None, columnspan=1, warning_func=None):
+    """
+    Crea un Label + Entry en un grid de Tkinter.
+    Soporta campos normales o tipo lista (ej. 'temperature_rise[0]').
+    Cada Entry tiene atributos:
+        - entry_name
+        - entry_index
+    """
+    if isinstance(field_name, str):
+        field_names = [field_name]
+    else:
+        field_names = field_name
+
+    fields = []
+    indexes = []
+    parent_obj_f = parent_obj.fields
+
+    for fname in field_names:
+        match = re.match(r"(\w+)\[(\d+)\]", fname)
+        if match:
+            base_name, index = match.groups()
+            index = int(index)
+            if base_name not in parent_obj_f:
+                raise AttributeError(f"Field '{base_name}' no existe")
+            field = parent_obj_f[base_name]
+            current = field.current[index]
+            if warning_func is not None:
+                parent_obj_f[base_name].warning_func = warning_func
+        else:
+            if fname not in parent_obj_f:
+                raise AttributeError(f"Field '{fname}' no existe")
+            field = parent_obj_f[fname]
+            current = field.current
+            index = None
+            if warning_func is not None:
+                parent_obj_f[fname].warning_func = warning_func
+
+        fields.append((field, current))
+        indexes.append(index)
+
+    first_field, first_current = fields[0]
+    first_idx = indexes[0]
+    if first_idx is not None:
+        initial_value = first_field.current[first_idx]
+    else:
+        initial_value = first_current.value if hasattr(first_current, "value") else str(first_current)
+
+    # Label
+    if label_text != "":
+        label = tk.Label(parent, text=label_text)
+        label.grid(row=row, column=column, padx=padx, pady=pady, sticky="e")
+        if "(*)" in label_text:
+            ToolTip(label, "Required field for optimization")
+    else:
+        column -= 1
+
+    created_entries = []
+
+    for i, (field, current) in enumerate(fields):
+        idx = indexes[i]
+
+        # Inicializar StringVar
+        if isinstance(field.current, list) and idx is not None:
+            if not isinstance(field.var, list):
+                field.var = [None for _ in field.current]
+            if field.var[idx] is None:
+                field.var[idx] = tk.StringVar(value=str(field.current[idx]))
+            var_entry = field.var[idx]
+        else:
+            if field.var is None:
+                field.var = tk.StringVar(value=str(field.current))
+            var_entry = field.var
+
+        entry = tk.Entry(parent, textvariable=var_entry, width=width)
+        entry.grid(row=row, column=column+1, padx=padx, pady=pady, sticky=sticky, columnspan=columnspan)
+
+        entry.entry_name = field_name
+        entry.entry_index = idx
+        
+        # 🔥 Flag de edición (se activa al entrar, se desactiva al salir)
+        entry._editing = False
+
+        if bOutput:
+            entry.configure(fg="green", disabledforeground="green")
+            entry.update_idletasks()
+        if bInfo:
+            entry.configure(fg="black", disabledforeground="black", justify="center")
+            entry.update_idletasks()
+
+        created_entries.append(entry)
+
+        # ---- Callback de escritura (trace) con protección ----
+        def make_callback(f, v, i, entry):
+            def callback(*args):
+                if getattr(f, "_updating_var", False):
+                    return
+
+                new_value_str = v.get()
+                val_type = type(f.current[i]) if i is not None else type(f.current)
+                try:
+                    if issubclass(val_type, Enum):
+                        conv_value = val_type[new_value_str]
+                    elif val_type == int:
+                        if new_value_str.strip() == "":
+                            return
+                        conv_value = int(float(new_value_str))
+                    elif val_type == float:
+                        if new_value_str in ("", ".", "-", "+"):
+                            return
+                        conv_value = float(new_value_str)
+                    else:
+                        conv_value = new_value_str
+                except (ValueError, KeyError):
+                    return
+
+                # 🛡️ Evitar que el propio 'set' dispare de nuevo el trace
+                f._updating_var = True
+                try:
+                    if i is not None:
+                        values = list(f.current)
+                        values[i] = conv_value
+                        f.set(values, mark_default=False, index=i)
+                    else:
+                        f.set(conv_value, mark_default=False)
+                finally:
+                    f._updating_var = False
+
+                if hasattr(f, "warning_func"):
+                    apply_warning_color(entry, f.warning_func, i, bOutput, bInfo)
+
+                if on_change_func:
+                    on_change_func(None, new_value_str, entries)
+
+            return callback
+
+        var_entry.trace_add("write", make_callback(field, var_entry, idx, entry))
+
+        # ---- Formateo de float al perder el foco (con retardo) ----
+        def format_float_on_exit(event, entry, var, f, i):
+            try:
+                if i is not None:
+                    val = f.current[i]
+                else:
+                    val = f.current
+                val_type = type(val)
+                value_str = var.get().strip()
+                if value_str == "":
+                    return
+                num = float(value_str)
+                # if val_type == int or (val_type == float and num.is_integer()):
+                #     var.set(f"{num:.1f}")
+                # else:
+                #     var.set(str(num))
+            except Exception:
+                pass
+
+        def on_focus_out(event, entry, var, f, i):
+            # Marcar que ya no estamos editando
+            entry._editing = False
+            # Dar tiempo para que terminen refrescos pendientes
+            def delayed_format():
+                if entry.winfo_exists():
+                    format_float_on_exit(event, entry, var, f, i)
+            entry.after(50, delayed_format)
+
+        def on_focus_in(event, entry):
+            entry._editing = True
+
+        # entry.bind("<FocusIn>", lambda e, entry=entry: on_focus_in(e, entry))
+        # entry.bind("<FocusOut>", lambda e, entry=entry, var=var_entry, f=field, i=idx:
+        #     refresh_widget()
+
+    if on_change_func:
+        on_change_func(None, initial_value, entries)
+
+    # ---- Refresh callbacks (actualizan el Entry si el modelo cambia) ----
+    for j, (field, _) in enumerate(fields):
+        entry = created_entries[j]
+        if isinstance(field.var, list):
+            for k, v in enumerate(field.var):
+                if v is None:
+                    continue
+                def refresh_var(f=field, v=v, idx=k, entry=entry):
+                    # 🚫 No actualizar si estamos editando este Entry
+                    if entry._editing:
+                        return
+                    val = f.current[idx]
+                    val_str = val.value if hasattr(val, "value") else str(val)
+                    if v.get() != val_str:
+                        f._updating_var = True
+                        v.set(val_str)
+                        f._updating_var = False
+                if not hasattr(field, "_refresh_callbacks"):
+                    field._refresh_callbacks = []
+                field._refresh_callbacks.append(refresh_var)
+        else:
+            v = field.var
+            def refresh_var(f=field, v=v, entry=entry):
+                # 🚫 No actualizar si estamos editando este Entry
+                if entry._editing:
+                    return
+                val = f.current
+                val_str = val.value if hasattr(val, "value") else str(val)
+                if hasattr(f, "warning_func"):
+                    apply_warning_color(entry, f.warning_func, None, bOutput, bInfo)
+                if v.get() != val_str:
+                    f._updating_var = True
+                    v.set(val_str)
+                    f._updating_var = False
+            if not hasattr(field, "_refresh_callbacks"):
+                field._refresh_callbacks = []
+            field._refresh_callbacks.append(refresh_var)
+
+    # ---- add_dynamic_restore ----
+    first_entry = created_entries[0]
+    last_field = fields[-1][0]
+    last_idx = indexes[-1]
+    if last_idx is None:
+        get_default_func = lambda: last_field.getdefault()
+    else:
+        get_default_func = lambda: last_field.getdefault()[last_idx]
+
+    add_dynamic_restore(
+        first_entry,
+        parent_obj,
+        last_field,
+        var_entry,
+        get_default_func=get_default_func
+    )
+
+    return first_entry
+
+
+def create_checkbox_focus(parent, row, column, label_text, field_name, parent_obj, padx=5, pady=5, sticky="e", toggle_widgets=None):
+    """
+    Creates a Label + Checkbutton in a Tkinter grid.
+    Automatically loads parent_obj.fields[field_name].current (bool)
+    and updates it on toggle.
+    """
+    import tkinter as tk
+
+    if not hasattr(parent_obj, "fields") or field_name not in parent_obj.fields:
+        raise AttributeError(f"El objeto pasado no tiene fields o no tiene el field '{field_name}'")
+
+    field = parent_obj.fields[field_name]
+
+    # Determine initial value as boolean
+    val = getattr(field, "current", getattr(field, "value", False))
+    initial_value = val.value if hasattr(val, "value") else bool(val)
+
+    # Create Label if provided
+    #if label_text != "":
+        #label = tk.Label(parent, text=label_text)
+        #label.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+
+        #if "(*)" in label_text:
+        #    ToolTip(label, "Required field for optimization")
+    if label_text == "":
+        column -= 1
+
+    # Create BooleanVar for the Checkbutton
+    var = tk.BooleanVar(value=initial_value)
+
+    # Create Checkbutton
+    checkbox = tk.Checkbutton(parent, text=label_text, variable=var)
+    checkbox.grid(row=row, column=column+1, padx=padx, pady=pady, sticky=sticky)
+    checkbox.var = var
+
+    # Update field.current when checkbox is toggled
+    def on_toggle():
+        enum_val = eLogical.TRUE if var.get() else eLogical.FALSE
+        field.set(enum_val)
+
+        # Sync BooleanVar with current FieldValue (optional, for safety)
+        var.set(True if field.get() == eLogical.TRUE else False)
+
+        # Update other widgets if needed
+        if toggle_widgets is not None:
+            toggle_controls(var.get(), toggle_widgets)
+
+    checkbox.config(command=on_toggle)
+
+    if toggle_widgets is not None:
+        toggle_controls(initial_value, toggle_widgets)
+
+    def refresh_var():
+        val = field.current
+        val_str = val.value if hasattr(val, "value") else str(val)
+        if var.get() != val_str:
+            var.set(val_str)
+
+    if not hasattr(field, "_refresh_callbacks"):
+        field._refresh_callbacks = []
+    field._refresh_callbacks.append(refresh_var)
+
+    return checkbox
+
+def make_scrollable(tab):
+    # Configure grid so canvas expands
+    tab.grid_rowconfigure(0, weight=1)
+    tab.grid_columnconfigure(0, weight=1)
+
+    # Canvas inside tab
+    canvas = tk.Canvas(tab)
+    canvas.grid(row=0, column=0, sticky="nsew")
+
+    # Scrollbar inside tab
+    scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Frame inside canvas
+    scrollable_frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+    # Update scrollregion when frame resizes
+    def update_scroll_region(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    scrollable_frame.bind("<Configure>", update_scroll_region)
+
+    return scrollable_frame
+
+def create_groupbox(parent, title, row, column, padx=5, pady=5, sticky="nsew"):
+    """
+    Creates a LabelFrame (group box) in a grid.
+    
+    Returns:
+        group_frame: the LabelFrame itself
+        widgets_list: list to store created widgets inside the group
+    """
+    group_frame = tk.LabelFrame(parent, text=title, padx=10, pady=10)
+    group_frame.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+    
+    # List to store widgets inside the group (for toggle/show/hide)
+    widgets_list = []
+    
+    return group_frame, widgets_list
+
+def hide_entry(entry: tk.Entry):
+    """Oculta visualmente un Entry sin removerlo del grid/pack/place."""
+    entry.config(state="disabled",
+                 disabledbackground=entry.cget("bg"),
+                 disabledforeground=entry.cget("bg"))
+
+def show_entry(entry: tk.Entry):
+    """Muestra nuevamente el Entry."""
+    entry.config(state="normal")
+
+def hide_label(label: tk.Label):
+    """Oculta visualmente un Label sin removerlo del grid/pack/place."""
+    label.config(fg=label.cget("bg"))
+
+def show_label(label: tk.Label, original_color="black"):
+    """Muestra nuevamente el Label con su color original."""
+    label.config(fg=original_color)
+
+def hide_combobox(combo: ttk.Combobox):
+    combo.state(["disabled"])  # Deshabilita
+    combo.configure(foreground=combo.cget("background"))  # Camufla texto
+
+def show_combobox(combo: ttk.Combobox):
+    combo.state(["!disabled"])  # Activa
+    combo.configure(foreground="black")
+
+
+def hide_checkbutton(check: tk.Checkbutton):
+    check.config(state="disabled",
+                 disabledforeground=check.cget("bg"))  # Camufla el texto
+
+def show_checkbutton(check: tk.Checkbutton, original_color="black"):
+    check.config(state="normal", fg=original_color)
+
+
+def on_select_show(event, selected_value,parent_obj, controls):
+    try:
+        pasos = int(selected_value)
+    except ValueError:
+        pasos = 0
+
+    for c in controls:
+        # Try to get the name attribute regardless of widget type
+        name = getattr(c, "combo_name", None) or getattr(c, "entry_name", None)
+
+        if not name:
+            continue  # if it doesn't have name, ignore
+
+        # Extract index if exists
+        match = re.search(r"\[(\d+)\]", name)
+        idx = int(match.group(1)) if match else None
+
+        if idx is None:
+            continue  # no index, ignore
+
+        # Show or hide depending on steps
+        if (idx + 1) <= pasos:
+            c.grid()
+        else:
+            c.grid_remove()
+            c.grid_remove()
+
+def toggle_controls(show: bool, controls):
+    if not isinstance(controls, (list, tuple)):
+        controls = [controls]
+
+    for c in controls:
+        if c is None:
+            continue
+        if isinstance(c, (list, tuple)):
+            # Recursión para listas de widgets
+            toggle_controls(show, c)
+        else:
+            if show:
+                c.grid()
+            else:
+                c.grid_remove()
+
+def hide_controls(show: bool, controls):
+    """
+    Enable/disable a list of Tkinter controls.
+
+    Parameters:
+        show (bool): True to enable, False to disable
+        controls (list): List of Tkinter widgets
+    """
+    if controls==None:
+        return
+
+    if not isinstance(controls, (list, tuple)):
+        controls = [controls]
+
+    for c in controls:
+        if c is not None:
+            state = "normal" if show else "disabled"
+            try:
+                c.configure(state=state)
+            except:
+                pass
+
+def size(parent):
+    num_cols = 12  # ajustar seg�n tu layout
+    col_width_px  = 51
+    col_width_chars = 12  # ancho de widgets
+    for i in range(num_cols):
+         parent.columnconfigure(i, weight=0, minsize=col_width_px)
+
+# def refresh_all_widgets(obj):
+#     for field in getattr(obj, "fields", {}).values():
+#         if hasattr(field, "_refresh_callbacks"):
+#             for callback in field._refresh_callbacks:
+#                 callback()
+#     # Recorre dependencias recursivamente si existen
+#     for attr_name in ["winding", "coil", "conductor", "device"]:
+#         attr = getattr(obj, attr_name, None)
+#         if attr:
+#             if isinstance(attr, list):
+#                 for item in attr:
+#                     refresh_all_widgets(item)
+#             else:
+#                 refresh_all_widgets(attr)
+
+def refresh_all_widgets(obj, is_root=True, processed=None):
+    """
+    Actualiza widgets en dos fases para evitar ciclos.
+    Primero actualiza el objeto actual y sus hijos directos,
+    luego los padres (si is_root=False no sube de nuevo)
+    """
+    if processed is None:
+        processed = set()
+    
+    obj_id = id(obj)
+    if obj_id in processed:
+        return
+    processed.add(obj_id)
+    
+    # FASE 1: Actualizar fields del objeto actual
+    for field in getattr(obj, "fields", {}).values():
+        if hasattr(field, "_refresh_callbacks"):
+            for callback in field._refresh_callbacks:
+                try:
+                    callback()
+                except Exception as e:
+                    print(f"Error: {e}")
+    
+    # FASE 2: Actualizar hijos (pero no volver al padre)
+    for attr_name in ["winding", "coil", "conductor", "core", "cooling", 
+                      "tests", "costs", "gradients", "guarantee", "losses", "mechanical"]:
+        attr = getattr(obj, attr_name, None)
+        if attr:
+            if isinstance(attr, list):
+                for item in attr:
+                    refresh_all_widgets(item, is_root=False, processed=processed)
+            else:
+                refresh_all_widgets(attr, is_root=False, processed=processed)
+    
+    # FASE 3: Si es el objeto raíz, actualizar device (pero como hijo, no como padre)
+    if is_root and hasattr(obj, 'device') and obj.device and obj.device is not obj:
+        # Actualizar device pero como hijo, no como raíz
+        refresh_all_widgets(obj.device, is_root=False, processed=processed)
+
+def add_dynamic_restore(widget, parent_obj,field,widget_var=None, get_default_func=None):
+    """
+    Adds a context menu to a widget to restore a dynamic default value.
+    - widget: Entry, Combobox, or Checkbutton
+    - widget_var: associated variable (for Checkbutton)
+    - get_default_func: function that returns the default value to restore
+    """
+    def restore():
+        if get_default_func is not None:
+            default_value = get_default_func()
+        else:
+            # Fallback: use current value
+            if isinstance(widget, (tk.Entry, ttk.Combobox)):
+                default_value = widget.get()
+            elif isinstance(widget, tk.Checkbutton) and widget_var is not None:
+                default_value = widget_var.get()
+            else:
+                default_value = None
+
+        # --- Normalize Enum values to string for display ---
+        if isinstance(default_value, Enum):
+            default_display = default_value.value
+        # elif hasattr(default_value, "name"):
+        #     default_display = default_value.name
+        # elif hasattr(default_value, "value"):
+        #     default_display = str(default_value.value)
+        else:
+            default_display = str(default_value)
+
+        # --- Restore according to widget type ---
+        if isinstance(widget, ttk.Combobox):
+            values = widget.cget("values")
+            # Buscar coincidencia exacta o por texto
+            if default_display in values:
+                widget.set(default_display)
+            elif str(default_value) in values:
+                widget.set(str(default_value))
+            else:
+                # Valor no esta en la lista, asignar texto directo
+                widget.set(default_display)
+
+            # Simular evento de selección para actualizar backend
+            #widget.event_generate("<<ComboboxSelected>>")
+
+        elif isinstance(widget, tk.Entry):
+            widget_var.set(default_display)
+            #widget.delete(0, tk.END)
+            #widget.insert(0, default_display)
+        elif isinstance(widget, tk.Checkbutton) and widget_var is not None:
+            # Convertir Enum a boolean si aplica
+            if hasattr(default_value, "name"):
+                widget_var.set(default_value.name.lower() in ["true", "yes", "1"])
+            else:
+                widget_var.set(bool(default_value))
+
+        field.reset()
+
+        field._updating_var = False
+
+        if hasattr(parent_obj, "device") and parent_obj.device:
+            parent_obj.device.calculate_device()
+            parent_obj.device.calculate_device()
+            refresh_all_widgets(parent_obj.device)
+
+    # --- Context menu setup ---
+    menu = tk.Menu(widget, tearoff=0)
+    menu.add_command(label="Restore Default", command=restore)
+
+    def show_menu(event):
+        menu.tk_popup(event.x_root, event.y_root)
+
+    widget.bind("<Button-3>", show_menu)  # Right-click (Windows/Linux)
+    widget.bind("<Button-2>", show_menu)  # Middle-click (Mac)
+
+def apply_warning_color(widget, warning_func=None, iIndex=None,bOutput =None,bInfo=None):
+    if warning_func is None:
+        return
+    
+    style = ttk.Style()
+
+    bComboBox = True if isinstance(widget, ttk.Combobox) else False
+    d_Value = [0.0,0.0]
+    results = []
+
+    if isinstance(warning_func, (list, tuple, set)):    # 🔥 VARIAS FUNCIONES
+        for func in warning_func:
+            res = func(iIndex, d_Value) if iIndex is not None else func(d_Value)
+            if isinstance(res, (list, tuple)):          # si una función regresa varios
+                results.extend(res)
+            else:
+                results.append(res)
+    else:                                              # 🔥 SOLO UNA FUNCIÓN
+        result = warning_func(iIndex, d_Value) if iIndex is not None else warning_func(d_Value)
+        results = result if isinstance(result, (list, tuple)) else [result]
+
+    color = None
+    justifyE = None #"right"
+    colorName = None
+    color = None
+
+    if bOutput:  
+        colorName = "Green.TCombobox"
+        color = "green"
+    if bInfo:
+        colorName = "Black.TCombobox"
+        color = "black"
+        justifyE = "center"
+
+    if eWarnings.eERROR in results:
+        colorName = "Red.TCombobox"
+        color = "red"
+    elif eWarnings.eWARNING in results:
+        colorName = "Blue.TCombobox"
+        color = "blue"
+    elif eWarnings.eNONE in results and bOutput==False:
+        colorName = "Black.TCombobox"
+        color = "black"
+
+    if bComboBox and colorName is not None:
+        style.configure(colorName, foreground=color)
+        widget.config(style=colorName)
+    elif isinstance(widget, tk.Entry) or isinstance(widget, tk.Label):
+        widget.config(fg=color, disabledforeground=color, justify=justifyE)
+
+def get_enum_safe(enum_class, selected):
+    if isinstance(selected, enum_class):
+        return selected
+
+    # si es string con formato "eWindingSelection.NONE", extraemos "NONE"
+    if isinstance(selected, str) and '.' in selected:
+        selected = selected.split('.')[-1]
+
+    # Primero por nombre
+    try:
+        return enum_class[selected]
+    except KeyError:
+        pass
+
+    # Luego por valor
+    try:
+        return enum_class(selected)
+    except ValueError:
+        pass
+
+class ToolTip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tipwindow = None
+        widget.bind("<Enter>", self.show)
+        widget.bind("<Leave>", self.hide)
+
+    def show(self, event=None):
+        if self.tipwindow or not self.text:
+            return
+
+        x = self.widget.winfo_rootx() + 20
+        y = self.widget.winfo_rooty() + 20
+
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+
+        label = tk.Label(
+            tw,
+            text=self.text,
+            background="#f5f5f5",
+            relief="solid",
+            borderwidth=1,
+            font=("Segoe UI", 8)
+        )
+        label.pack()
+
+    def hide(self, event=None):
+        if self.tipwindow:
+            self.tipwindow.destroy()
+            self.tipwindow = None

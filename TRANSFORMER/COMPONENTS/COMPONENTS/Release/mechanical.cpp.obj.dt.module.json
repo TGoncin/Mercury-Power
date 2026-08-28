@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\mechanical.obj",
+            "outputs": [
+                "Release\\mechanical.cpp.obj.dt.module.json",
+                "Release\\mechanical.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

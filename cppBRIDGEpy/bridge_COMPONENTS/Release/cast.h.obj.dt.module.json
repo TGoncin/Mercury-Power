@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\cast.obj",
+            "outputs": [
+                "Release\\cast.h.obj.dt.module.json",
+                "Release\\cast.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

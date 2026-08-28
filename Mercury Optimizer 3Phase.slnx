@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/cppBRIDGEpy/">
+    <Project Path="cppBRIDGEpy/bridge_COMPONENTS/bridge_COMPONENTS.vcxproj" Id="5ad10564-e2d6-4a15-96b0-f4bf97101ba4" />
+    <Project Path="cppBRIDGEpy/bridge_CORE/bridge_CORE.vcxproj" Id="1c9a3ade-a7d8-46f4-b8bb-fb40b97ecc66" />
+    <Project Path="cppBRIDGEpy/bridge_PHYSICS/bridge_PHYSICS.vcxproj" Id="e593b943-a104-4323-9b5e-b5841730d29f" />
+  </Folder>
+  <Folder Name="/TRANSFORMER/">
+    <Project Path="TRANSFORMER/COMMERCIAL/COMMERCIAL/COMMERCIAL.vcxproj" Id="fbdb5a76-6c2b-4fb1-8776-9b88b4890d6a" />
+    <Project Path="TRANSFORMER/COMPONENTS/COMPONENTS/COMPONENTS.vcxproj" Id="cdc688b3-a5e1-46d5-b1f2-b8e050346394" />
+    <Project Path="TRANSFORMER/CONFIG/CONFIG/CONFIG/CONFIG.vcxproj" Id="027c8c1d-69a8-4ab1-925a-7317bcd17953" />
+    <Project Path="TRANSFORMER/CORE/CORE/CORE.vcxproj" Id="20001bb9-c934-498d-8b10-6e915d03b923" />
+    <Project Path="TRANSFORMER/PHYSICS/PHYSICS/PHYSICS.vcxproj" Id="482fe610-95b4-4bc5-b3a6-598df8f183f7" />
+    <Project Path="TRANSFORMER/VALIDATION/VALIDATION/VALIDATION.vcxproj" Id="653a7c61-fb30-4f34-aab2-9ec4c94d4124" />
+  </Folder>
+  <Project Path="Mercury Optimizer 3Phase.vcxproj" Id="b869b638-306c-4a3d-a839-e9139adc9294">
+    <BuildDependency Project="TRANSFORMER/VALIDATION/VALIDATION/VALIDATION.vcxproj" />
+  </Project>
+</Solution>

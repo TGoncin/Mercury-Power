@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\field_Value.obj",
+            "outputs": [
+                "Release\\field_Value.cpp.obj.dt.module.json",
+                "Release\\field_Value.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

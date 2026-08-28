@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\serialize_Bridge.obj",
+            "outputs": [
+                "Release\\serialize_Bridge.cpp.obj.dt.module.json",
+                "Release\\serialize_Bridge.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

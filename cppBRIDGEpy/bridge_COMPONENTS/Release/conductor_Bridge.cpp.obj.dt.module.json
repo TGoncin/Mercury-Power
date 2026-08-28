@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\conductor_Bridge.obj",
+            "outputs": [
+                "Release\\conductor_Bridge.cpp.obj.dt.module.json",
+                "Release\\conductor_Bridge.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

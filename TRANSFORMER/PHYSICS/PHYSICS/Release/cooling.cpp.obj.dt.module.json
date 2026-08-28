@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\cooling.obj",
+            "outputs": [
+                "Release\\cooling.cpp.obj.dt.module.json",
+                "Release\\cooling.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

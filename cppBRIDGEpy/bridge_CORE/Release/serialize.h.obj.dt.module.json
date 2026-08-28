@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\serialize.obj",
+            "outputs": [
+                "Release\\serialize.h.obj.dt.module.json",
+                "Release\\serialize.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

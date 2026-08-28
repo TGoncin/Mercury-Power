@@ -1,0 +1,11 @@
+﻿  coil_Warnings.cpp
+  conductor_Warnings.cpp
+  core_Warnings.cpp
+  device_Warnings.cpp
+  gradient_Warnings.cpp
+  guarantee_Warnings.cpp
+  losses_Warnings.cpp
+  mechanical_Warnings.cpp
+  tests.cpp
+  winding_Warnings.cpp
+  VALIDATION.vcxproj -> C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\TRANSFORMER\VALIDATION\bin\Release\VALIDATION.lib

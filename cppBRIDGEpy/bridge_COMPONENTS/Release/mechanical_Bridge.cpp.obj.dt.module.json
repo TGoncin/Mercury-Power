@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\mechanical_Bridge.obj",
+            "outputs": [
+                "Release\\mechanical_Bridge.cpp.obj.dt.module.json",
+                "Release\\mechanical_Bridge.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

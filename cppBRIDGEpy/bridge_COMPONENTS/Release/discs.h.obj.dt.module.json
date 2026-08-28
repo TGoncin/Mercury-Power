@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\discs.obj",
+            "outputs": [
+                "Release\\discs.h.obj.dt.module.json",
+                "Release\\discs.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

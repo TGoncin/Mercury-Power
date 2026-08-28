@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\core__Bridge.obj",
+            "outputs": [
+                "Release\\core__Bridge.cpp.obj.dt.module.json",
+                "Release\\core__Bridge.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

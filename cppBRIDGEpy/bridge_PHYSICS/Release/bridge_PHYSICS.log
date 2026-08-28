@@ -1,0 +1,11 @@
+﻿  cooling_Bridge.cpp
+  gradient_Bridge.cpp
+  losses_Bridge.cpp
+  phase_Amperage_Bridge.cpp
+  midConnector_PHYSICS.cpp
+     Creating library ..\bin\Release\bridge_PHYSICS.lib and object ..\bin\Release\bridge_PHYSICS.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 8993 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  bridge_PHYSICS.vcxproj -> C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\cppBRIDGEpy\bin\Release\bridge_PHYSICS.pyd

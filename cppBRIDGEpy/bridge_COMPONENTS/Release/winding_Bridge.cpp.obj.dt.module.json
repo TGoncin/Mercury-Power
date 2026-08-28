@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\winding_Bridge.obj",
+            "outputs": [
+                "Release\\winding_Bridge.cpp.obj.dt.module.json",
+                "Release\\winding_Bridge.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

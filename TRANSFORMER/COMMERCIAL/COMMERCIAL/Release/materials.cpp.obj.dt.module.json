@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\materials.obj",
+            "outputs": [
+                "Release\\materials.cpp.obj.dt.module.json",
+                "Release\\materials.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
