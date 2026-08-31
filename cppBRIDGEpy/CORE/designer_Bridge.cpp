@@ -6,16 +6,18 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "alias.h"
+
 #include "designer.h"
 #include "device.h"
 
 namespace py = pybind11;
-
+using namespace Transformer::Types;
 
 
 void bridge_Designer(py::module_& m)
 {
-    py::class_<Designer>(m, "Designer")
+    py::class_<home_Designer>(m, "Designer")
 
 
 //      C O N S T R U C T O R S
@@ -26,11 +28,11 @@ void bridge_Designer(py::module_& m)
 
 //      C O R E   E X E C U T I O N   M E T H O D S 
 
-        .def("designSinglePhase", &Transformer::Core::Designer::designSinglePhase,
+        .def("designSinglePhase", &home_Designer::designSinglePhase,
             "Execute single-phase structural mechanical allocations and electrical optimization sweep")
-        .def("calculatePenalty", &Transformer::Core::Designer::calculatePenalty,
+        .def("calculatePenalty", &home_Designer::calculatePenalty,
             "Evaluate absolute compliance bounds and compute total design penalty")
-        .def("calculateWarning", &Transformer::Core::Designer::calculateWarning,
+        .def("calculateWarning", &home_Designer::calculateWarning,
             "Calculate warning metrics and penalty adjustments")
 
 
@@ -38,42 +40,42 @@ void bridge_Designer(py::module_& m)
 
 
         .def_property("cost",
-            &Transformer::Core::Designer::getCost,
-            &Transformer::Core::Designer::setCost,
+            &home_Designer::getCost,
+            &home_Designer::setCost,
             "Design evaluation cost")
 
         .def_property("penalty",
-            &Transformer::Core::Designer::getPenalty,
-            &Transformer::Core::Designer::setPenalty,
+            &home_Designer::getPenalty,
+            &home_Designer::setPenalty,
             "Accumulated design penalty score")
 
         .def_property("warning",
-            &Transformer::Core::Designer::getWarning,
-            &Transformer::Core::Designer::setWarning,
+            &home_Designer::getWarning,
+            &home_Designer::setWarning,
             "Calculated design warning value")
 
         .def_property("validDesign",
-            &Transformer::Core::Designer::getValidDesign,
-            &Transformer::Core::Designer::setValidDesign,
+            &home_Designer::getValidDesign,
+            &home_Designer::setValidDesign,
             "Boolean flag indicating design validity")
 
         .def_property("penaltyLevel",
-            &Transformer::Core::Designer::getPenaltyLevel,
-            &Transformer::Core::Designer::setPenaltyLevel,
+            &home_Designer::getPenaltyLevel,
+            &home_Designer::setPenaltyLevel,
             "Current penalty tracking tier level")
 
         .def_property("listSolutions_LV",
-            &Transformer::Core::Designer::getListSolutions_LV,
-            &Transformer::Core::Designer::setListSolutions_LV,
+            &home_Designer::getListSolutions_LV,
+            &home_Designer::setListSolutions_LV,
             "Low-voltage solution vector options")
 
         .def_property("listSolutions_HV",
-            &Transformer::Core::Designer::getListSolutions_HV,
-            &Transformer::Core::Designer::setListSolutions_HV,
+            &home_Designer::getListSolutions_HV,
+            &home_Designer::setListSolutions_HV,
             "High-voltage solution vector options")
 
         .def_property("device",
-            &Transformer::Core::Designer::getDevice,
-            &Transformer::Core::Designer::setDevice,
+            &home_Designer::getDevice,
+            &home_Designer::setDevice,
             "Associated transformer Device shared pointer object");
 }

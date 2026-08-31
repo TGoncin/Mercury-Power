@@ -2,10 +2,11 @@
   device_Bridge.cpp
   field_Value_Bridge.cpp
   serialize_Bridge.cpp
+  enums_Bridge.cpp
   midConnector_CORE.cpp
      Creating library ..\bin\Release\bridge_CORE.lib and object ..\bin\Release\bridge_CORE.exp
   Generating code
   Previous IPDB not found, fall back to full compilation.
-  All 10751 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 13355 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   bridge_CORE.vcxproj -> C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\cppBRIDGEpy\bin\Release\bridge_CORE.pyd

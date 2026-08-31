@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\enums_Bridge.obj",
+            "outputs": [
+                "Release\\enums_Bridge.cpp.obj.dt.module.json",
+                "Release\\enums_Bridge.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

@@ -151,6 +151,7 @@
     <ClCompile Include="..\CORE\device_Bridge.cpp" />
     <ClCompile Include="..\CORE\field_Value_Bridge.cpp" />
     <ClCompile Include="..\CORE\serialize_Bridge.cpp" />
+    <ClCompile Include="enums_Bridge.cpp" />
     <ClCompile Include="midConnector_CORE.cpp" />
   </ItemGroup>
   <ItemGroup>

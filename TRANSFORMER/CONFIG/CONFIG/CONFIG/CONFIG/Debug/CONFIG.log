@@ -1,0 +1,11 @@
+﻿  conversions.cpp
+  electrical_Calculations.cpp
+C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\TRANSFORMER\CONFIG\Source\conversions.cpp(14,10): error C1083: Cannot open include file: 'conversions.h': No such file or directory
+C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\TRANSFORMER\CONFIG\Source\electrical_Calculations.cpp(11,10): error C1083: Cannot open include file: 'electrical_Calculations.h': No such file or directory
+  file_System.cpp
+C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\TRANSFORMER\CONFIG\Source\file_System.cpp(11,10): error C1083: Cannot open include file: 'file_System.h': No such file or directory
+  math_Utilities.cpp
+C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\TRANSFORMER\CONFIG\Source\math_Utilities.cpp(14,10): error C1083: Cannot open include file: 'math_Utilities.h': No such file or directory
+  table_Search.cpp
+C:\Users\TGonc\source\repos\Mercury Optimizer 3Phase\TRANSFORMER\CONFIG\Source\table_Search.cpp(11,10): error C1083: Cannot open include file: 'alias.h': No such file or directory
+  Generating Code...

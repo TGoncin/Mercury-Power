@@ -30,5 +30,8 @@
     <ClCompile Include="midConnector_CORE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="enums_Bridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

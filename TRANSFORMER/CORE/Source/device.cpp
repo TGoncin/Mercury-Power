@@ -423,6 +423,17 @@ namespace Transformer::Core
             coil[1] ->assign_Index(1);
         }
     }
+    home_Coil* Device::get_CoilByPosition(int position) const
+    {
+        for (auto& c : coil)
+        {
+            if (c && c->coilFields.count("id") && c->coilFields.at("id").get<int>() == position)
+            {
+                return c.get();
+            }
+        }
+        return nullptr;
+    }
     void Device::associate_CoilsWithWindings()
     {
         auto array = deviceFields["array_type"].get<Config::ArrayType>();

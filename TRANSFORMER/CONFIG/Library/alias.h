@@ -1,6 +1,6 @@
 //    @date      June 19, 2026 ~ EDIT: August 17 2026
 //    @author    Tom Goncin
-//    @file      aliases.h
+//    @file      alias.h
 //    @brief     Created aliases to reduce convolution in code
 
 #pragma once
@@ -11,7 +11,7 @@ namespace Transformer::Components {     class Bushing;      class Changer;  clas
                                         class Core;         class Discs;    class Mechanical;   class Winding;      struct ConductorSolution;
                                     }
 
-namespace Transformer::Core         {   class Device;       class FieldValue;
+namespace Transformer::Core         {   class Device;       class FieldValue;   class Designer;
                                     }
 
 namespace Transformer::Physics      {   class Cooling;     class Gradients;    class Losses;
@@ -52,6 +52,7 @@ namespace Transformer::Types
 
     using home_FieldValue           = Transformer::Core::       FieldValue;
     using home_Device               = Transformer::Core::       Device;
+    using home_Designer	            = Transformer::Core::       Designer;
 
     using home_Cooling              = Transformer::Physics::    Cooling;
     using home_Gradients            = Transformer::Physics::    Gradients;

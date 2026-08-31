@@ -7,9 +7,14 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
+#include "alias.h"
+
 #include "field_Value.h"
 
 namespace py = pybind11;
+using namespace Transformer::Types;
+
+
 
 
 void bridge_Field_Value(py::module_& m)

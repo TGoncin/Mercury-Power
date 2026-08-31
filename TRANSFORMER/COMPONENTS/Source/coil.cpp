@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iomanip>
 
-
+#include "alias.h"
 #include "definitions.h"
 #include "system_Config.h"
 #include "conversions.h"
@@ -17,15 +17,17 @@
 #include "math_Utilities.h"
 #include "transformer_Config.h"
 
-
 #include "winding.h"
 #include "guarantee.h"
 #include "device.h"
 #include "designer.h"
 #include "discs.h"
 #include "cooling.h"
-
 #include "coil.h"
+
+using namespace Transformer::Types;
+
+
 
 
 namespace Transformer::Components
@@ -48,73 +50,73 @@ namespace Transformer::Components
                 table_CoilBil3Ph        (table_CoilBil3Ph), 
                 table_Conductor         (table_Conductor)
     {
-        coilFields["id"] =                  FieldValue (Coil::id_Counter);
-        coilFields["name"] =                FieldValue ("Coil " + std::to_string         (Coil::id_Counter));
-        coilFields["iBil"] =                FieldValue (30);
-        coilFields["tDescDevanado"] =       FieldValue (static_cast<int>                 (home_WindingDesc::None));
-        coilFields["i_Biles"] =             FieldValue (FieldValue::List({30.0, 30.0, 30.0}));
-        coilFields["dTurns"] =              FieldValue (0.0);
-        coilFields["iLayers"] =             FieldValue (1);
-        coilFields["iSectionsLeg"] =        FieldValue (1);
-        coilFields["bConstantStayback"]=    FieldValue (false);
-        coilFields["tRegulationType"] =     FieldValue(static_cast<int>                  (regulationType));
-        coilFields["tCoilType"] =           FieldValue(static_cast<int>                  (coilType));
-        coilFields["dStaybak"] =            FieldValue (0.00);
-        coilFields["dCoolingDuct"] =        FieldValue (0.00);
-        coilFields["dCoreProtection"] =     FieldValue (0.00);
-        coilFields["dFormDetails"] =        FieldValue (0.00);
-        coilFields["dFormDuct"] =           FieldValue (0.00);
-        coilFields["dForm001Paper"] =       FieldValue (0.00);
-        coilFields["dUnderHV001Paper"] =    FieldValue (0.00);
-        coilFields["dUOHV001Paper"] =       FieldValue (0.00);
-        coilFields["dUOHVDuct"] =           FieldValue (0.00);
-        coilFields["dUOHVCrepePaper"] =     FieldValue (0.00);
-        coilFields["dUOHV001Paper2"] =      FieldValue (0.00);
-        coilFields["dCoilCoreDuct"] =       FieldValue (0.00);
-        coilFields["dCoilCorePacking"] =    FieldValue (0.00);
-        coilFields["dCoilCoilDuct"] =       FieldValue (0.00);
-        coilFields["dCoilCoilPacking"] =    FieldValue (0.00);
-        coilFields["dCoilCoilDuct2"] =      FieldValue (0.00);
-        coilFields["pdPhaseAmp"] =          FieldValue (FieldValue::List(MAX_TAPS, 0.0));
-        coilFields["pdPhaseAmpSinRel"] =    FieldValue (FieldValue::List(MAX_TAPS, 0.0));
-        coilFields["iLongPhaseAmp"] =       FieldValue (0.0);
-        coilFields["pdPhaseAmpDifPos"] =    FieldValue (FieldValue::List(MAX_TAPS, 0.0));
-        coilFields["dOvercoil"] =           FieldValue (0.0);
-        coilFields["dTurnsSection"] =       FieldValue (0.0);
-        coilFields["iTurnsLayers"] =        FieldValue (1);
-        coilFields["dNoLayersUnder"] =      FieldValue (0.0);
-        coilFields["dNoLayersBody"] =       FieldValue (0.0);
-        coilFields["dNoLayersOver"] =       FieldValue (0.0);
-        coilFields["dTotLayers"] =          FieldValue (0.0);
-        coilFields["i_Ducts"] =             FieldValue (FieldValue::List(10, 0));
-        coilFields["ductsIn"] =             FieldValue ("");
-        coilFields["ductsOut"] =            FieldValue ("");
-        coilFields["dWidthDucts"] =         FieldValue (0.0);
-        coilFields["sWidthDucts"] =         FieldValue ("");
-        coilFields["dInterPaper"] =            FieldValue (0.0);
-        coilFields["dEndPaper"] =              FieldValue (0.0);
-        coilFields["iTotNoEndLayers"] =        FieldValue (0);
-        coilFields["sInsulationEnd"] =         FieldValue ("");
-        coilFields["sPreInsEnd"] =             FieldValue ("");
-        coilFields["sInsulationInt"] =         FieldValue ("");
-        coilFields["sInsulationIntComplete"] = FieldValue ("");
-        coilFields["iRequiredNumDucts"] =      FieldValue (0.0);
-        coilFields["s_OverOuterPreliminar"] =  FieldValue (FieldValue::List({"", ""}));
-        coilFields["sOver"] =                  FieldValue ("");
-        coilFields["dkVmm"] =                 FieldValue (0.00);
-        coilFields["dRadialBuilt"] =          FieldValue (0.00);
-        coilFields["sDescriptionTb"] =        FieldValue ("");
-        coilFields["dRadialBuiltSides"] =     FieldValue (0.00);
-        coilFields["dRadialBuiltIntNoses"] =  FieldValue (0.00);
-        coilFields["dRadialBuiltOutNoses"] =  FieldValue (0.00);
-        coilFields["sRadialBuilds"] =         FieldValue ("");
-        coilFields["iHigh"] =                 FieldValue (0);
-        coilFields["iWide"] =                 FieldValue (0);
-        coilFields["dCondThickTurn"] =        FieldValue (0.00);
-        coilFields["dCondWdthTurn"] =         FieldValue (0.00);
-        coilFields["sErrorName"] =     FieldValue(FieldValue::List(ERRORMESSAGES, ""));
-        coilFields["tErrorEnum"] =     FieldValue(FieldValue::List(ERRORMESSAGES, static_cast<int> (home_WarningSeverity::None)));
-        coilFields["sErrorMessages"] = FieldValue(FieldValue::List(ERRORMESSAGES, ""));
+        coilFields["id"] =                  home_FieldValue (Coil::id_Counter);
+        coilFields["name"] =                home_FieldValue ("Coil " + std::to_string         (Coil::id_Counter));
+        coilFields["iBil"] =                home_FieldValue (30);
+        coilFields["tDescDevanado"] =       home_FieldValue (static_cast<int>                 (home_WindingDesc::None));
+        coilFields["i_Biles"] =             home_FieldValue (home_FieldValue::List({30.0, 30.0, 30.0}));
+        coilFields["dTurns"] =              home_FieldValue (0.0);
+        coilFields["iLayers"] =             home_FieldValue (1);
+        coilFields["iSectionsLeg"] =        home_FieldValue (1);
+        coilFields["bConstantStayback"]=    home_FieldValue (false);
+        coilFields["tRegulationType"] =     home_FieldValue(static_cast<int>                  (regulationType));
+        coilFields["tCoilType"] =           home_FieldValue(static_cast<int>                  (coilType));
+        coilFields["dStaybak"] =            home_FieldValue (0.00);
+        coilFields["dCoolingDuct"] =        home_FieldValue (0.00);
+        coilFields["dCoreProtection"] =     home_FieldValue (0.00);
+        coilFields["dFormDetails"] =        home_FieldValue (0.00);
+        coilFields["dFormDuct"] =           home_FieldValue (0.00);
+        coilFields["dForm001Paper"] =       home_FieldValue (0.00);
+        coilFields["dUnderHV001Paper"] =    home_FieldValue (0.00);
+        coilFields["dUOHV001Paper"] =       home_FieldValue (0.00);
+        coilFields["dUOHVDuct"] =           home_FieldValue (0.00);
+        coilFields["dUOHVCrepePaper"] =     home_FieldValue (0.00);
+        coilFields["dUOHV001Paper2"] =      home_FieldValue (0.00);
+        coilFields["dCoilCoreDuct"] =       home_FieldValue (0.00);
+        coilFields["dCoilCorePacking"] =    home_FieldValue (0.00);
+        coilFields["dCoilCoilDuct"] =       home_FieldValue (0.00);
+        coilFields["dCoilCoilPacking"] =    home_FieldValue (0.00);
+        coilFields["dCoilCoilDuct2"] =      home_FieldValue (0.00);
+        coilFields["pdPhaseAmp"] =          home_FieldValue (home_FieldValue::List(MAX_TAPS, 0.0));
+        coilFields["pdPhaseAmpSinRel"] =    home_FieldValue (home_FieldValue::List(MAX_TAPS, 0.0));
+        coilFields["iLongPhaseAmp"] =       home_FieldValue (0.0);
+        coilFields["pdPhaseAmpDifPos"] =    home_FieldValue (home_FieldValue::List(MAX_TAPS, 0.0));
+        coilFields["dOvercoil"] =           home_FieldValue (0.0);
+        coilFields["dTurnsSection"] =       home_FieldValue (0.0);
+        coilFields["iTurnsLayers"] =        home_FieldValue (1);
+        coilFields["dNoLayersUnder"] =      home_FieldValue (0.0);
+        coilFields["dNoLayersBody"] =       home_FieldValue (0.0);
+        coilFields["dNoLayersOver"] =       home_FieldValue (0.0);
+        coilFields["dTotLayers"] =          home_FieldValue (0.0);
+        coilFields["i_Ducts"] =             home_FieldValue (home_FieldValue::List(10, 0));
+        coilFields["ductsIn"] =             home_FieldValue ("");
+        coilFields["ductsOut"] =            home_FieldValue ("");
+        coilFields["dWidthDucts"] =         home_FieldValue (0.0);
+        coilFields["sWidthDucts"] =         home_FieldValue ("");
+        coilFields["dInterPaper"] =            home_FieldValue (0.0);
+        coilFields["dEndPaper"] =              home_FieldValue (0.0);
+        coilFields["iTotNoEndLayers"] =        home_FieldValue (0);
+        coilFields["sInsulationEnd"] =         home_FieldValue ("");
+        coilFields["sPreInsEnd"] =             home_FieldValue ("");
+        coilFields["sInsulationInt"] =         home_FieldValue ("");
+        coilFields["sInsulationIntComplete"] = home_FieldValue ("");
+        coilFields["iRequiredNumDucts"] =      home_FieldValue (0.0);
+        coilFields["s_OverOuterPreliminar"] =  home_FieldValue (home_FieldValue::List({"", ""}));
+        coilFields["sOver"] =                  home_FieldValue ("");
+        coilFields["dkVmm"] =                 home_FieldValue (0.00);
+        coilFields["dRadialBuilt"] =          home_FieldValue (0.00);
+        coilFields["sDescriptionTb"] =        home_FieldValue ("");
+        coilFields["dRadialBuiltSides"] =     home_FieldValue (0.00);
+        coilFields["dRadialBuiltIntNoses"] =  home_FieldValue (0.00);
+        coilFields["dRadialBuiltOutNoses"] =  home_FieldValue (0.00);
+        coilFields["sRadialBuilds"] =         home_FieldValue ("");
+        coilFields["iHigh"] =                 home_FieldValue (0);
+        coilFields["iWide"] =                 home_FieldValue (0);
+        coilFields["dCondThickTurn"] =        home_FieldValue (0.00);
+        coilFields["dCondWdthTurn"] =         home_FieldValue (0.00);
+        coilFields["sErrorName"] =     home_FieldValue(home_FieldValue::List(ERRORMESSAGES, ""));
+        coilFields["tErrorEnum"] =     home_FieldValue(home_FieldValue::List(ERRORMESSAGES, static_cast<int> (home_WarningSeverity::None)));
+        coilFields["sErrorMessages"] = home_FieldValue(home_FieldValue::List(ERRORMESSAGES, ""));
 
         conductor.push_back(home_Conductor(this, table_MaterialConstants, table_CoilBil3Ph, table_Conductor));
         
@@ -260,7 +262,7 @@ namespace Transformer::Components
         
         calc_Turns (winding);
         coilFields ["iBil"]              .assignDefault                                   (bil);
-        coilFields ["i_Biles"]           .assignDefault (FieldValue::List                 ({static_cast<double>(bil), static_cast<double>(bil), static_cast<double>(bil)}));
+        coilFields ["i_Biles"]           .assignDefault (home_FieldValue::List                 ({static_cast<double>(bil), static_cast<double>(bil), static_cast<double>(bil)}));
         coilFields ["iSectionsLeg"]      .assignDefault (calc_SectionsLeg                 (winding));
         coilFields ["dOvercoil"]         .assignDefault (calc_DefaultOvercoil             (windingType, windingLv));
         coilFields ["dTurnsSection"]     .assignDefault (calc_DefaultTurnsSection         (windingType));
